@@ -1,6 +1,7 @@
 /*
  * Planets
- *  Made by Abi
+ *  - Made by Abigail Sokol
+ *  - Last changed 5/1/2022 (d/m/y)
 */
 
 // libraries
