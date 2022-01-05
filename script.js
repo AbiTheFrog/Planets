@@ -37,7 +37,7 @@ window.addEventListener("resize", () => {
 
 // constants, globals, and acronyms
 const G = 6.67 * 10 ** -11;
-const texture = new gx.TextureLoader().load( "moon.jpg" );
+const texture = new gx.TextureLoader().load( "texture.jpg" );
 
 const rand = (min, max) => {
     return Math.random() * (max - min) + min;
