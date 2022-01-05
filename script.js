@@ -60,19 +60,19 @@ class Planet {
         this.cy = iy;
         this.cz = iz;
 
-        m = m * 80000000;
+        m = m * 40000000;
 
         this.m = m;
 
-        rad = (rad <= 0) ? m * 2 : rad;
-
-        this.r = rad;
+        rad = (rad <= 0) ? 1 : rad;
         
-        const geometry = new gx.SphereGeometry(rad, res, res);
+        const geometry = new gx.SphereGeometry(1, res, res);
         const material = new gx.MeshBasicMaterial({map: texture, color: 0xCCCCFF});
         this.shape = new gx.Mesh(geometry, material);
         
         this.shape.position.set(ix, iy, iz);
+
+        this.r = rad;
 
         scene.add(this.shape);
 
@@ -92,6 +92,17 @@ class Planet {
     set z(v){
         this.cz = v;
         this.shape.position.z = v;
+    }
+
+    set r(v){
+        this.rad = v;
+        this.shape.scale.x = v;
+        this.shape.scale.y = v;
+        this.shape.scale.z = v;
+    }
+
+    get r(){
+        return this.rad;
     }
 
     update(){
@@ -166,21 +177,21 @@ class World {
                     p.vz = ex.vz * mr;
                     p.m += ex.m;
                     
-                    // I know this is not how this works
-                    // however, close enough for now
-                    p.shape.scale.x += ex.shape.scale.x;
-                    p.shape.scale.y += ex.shape.scale.y;
-                    p.shape.scale.z += ex.shape.scale.z;
-                    p.r += ex.r;
+                    p.r = Math.cbrt( p.r ** 3 + ex.r ** 3 );
 
                     scene.remove(ex.shape);
 
                     this.planets.splice(j, 1);
 
-                    p.x = (p.cx + ex.cx) / 2;
-                    p.y = (p.cy + ex.cy) / 2;
-                    p.z = (p.cz + ex.cz) / 2;
-                    
+                    // weighted average to center position
+                    const w1 = (p.m / ex.m), w2 = (ex.m / p.m);
+                    p.x = (w1 * p.cx + w2 * ex.cx) / (w1 + w2);
+                    p.y = (w1 * p.cy + w2 * ex.cy) / (w1 + w2);
+                    p.z = (w1 * p.cz + w2 * ex.cz) / (w1 + w2);
+
+                    // weighted spin
+                    p.spin = (w1 * p.spin + w2 * ex.spin) / (w1 + w2);
+
                     continue;
                 }
 
@@ -206,18 +217,33 @@ class World {
     }
 }
 
-const world = new World(10);
+var n = 10;
+
+const world = new World(n);
 
 // reset
 document.onkeydown = (event) => {
     switch(event.key){
         case 'r':
             world.clear();
-            world.create(10);
+            world.create(n);
+            break;
+        
+        case '+':
+            n += 5;
+            break;
+        
+        case '-':
+            n -= 5;
             break;
         
         case 'a':
             world.add();
+            break;
+        
+        case 'v':
+            cam.position.z = -80;
+            cam.position.y = 5;
             break;
     }
 }
