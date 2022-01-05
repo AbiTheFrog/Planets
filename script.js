@@ -236,6 +236,10 @@ document.onkeydown = (event) => {
         case '-':
             n -= 5;
             break;
+       
+        case '=':
+            n = 10;
+            break;
         
         case 'a':
             world.add();
