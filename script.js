@@ -1,7 +1,6 @@
 /*
  * Planets
- *  - Made by Abigail Sokol
- *  - Last changed 5/1/2022 (d/m/y)
+ *  Made by Abi
 */
 
 // libraries
@@ -38,7 +37,7 @@ window.addEventListener("resize", () => {
 
 // constants, globals, and acronyms
 const G = 6.67 * 10 ** -11;
-const texture = new gx.TextureLoader().load( "texture.jpg" );
+const texture = new gx.TextureLoader().load( "moon.jpg" );
 
 const rand = (min, max) => {
     return Math.random() * (max - min) + min;
@@ -54,7 +53,7 @@ class Planet {
             spin = Math.random();
         }
 
-        this.spin = spin / 10;
+        this.spin = spin / 100;
 
         this.cx = ix;
         this.cy = iy;
@@ -138,9 +137,11 @@ class World {
                 
                 const r3 = p.dist(ex.cx, ex.cy, ex.cz, ex.r) ** 3;
 
-                const fx = (G * p.m * ex.m) / r3 * (ex.cx - p.cx);
-                const fy = (G * p.m * ex.m) / r3 * (ex.cy - p.cy);
-                const fz = (G * p.m * ex.m) / r3 * (ex.cz - p.cz);
+                const f = (G * p.m * ex.m) / r3;
+
+                const fx = f * (ex.cx - p.cx);
+                const fy = f * (ex.cy - p.cy);
+                const fz = f * (ex.cz - p.cz);
                 
                 p.vx += fx / p.m;
                 p.vy += fy / p.m;
