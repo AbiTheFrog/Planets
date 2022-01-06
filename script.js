@@ -45,11 +45,11 @@ const rand = (min, max) => {
 }
 
 class Planet {
-    vx = 0;
-    vy = 0;
-    vz = 0;
+    vx = Math.random() / 10;
+    vy = Math.random() / 10;
+    vz = Math.random() / 10;
 
-    constructor(ix, iy, iz, m, res = 30, color = 0xFFFFFF, rad = -1, spin){
+    constructor(ix, iy, iz, m, res = 30, rad = -1, spin){
         if(!spin){
             spin = Math.random();
         }
@@ -60,11 +60,11 @@ class Planet {
         this.cy = iy;
         this.cz = iz;
 
-        m = m * 40000000;
+        // m = m * 10000000;
 
         this.m = m;
 
-        rad = (rad <= 0) ? 1 : rad;
+        rad = (rad <= 0) ? m / (10 ** 8) : rad; // just because, no real reason
         
         const geometry = new gx.SphereGeometry(1, res, res);
         const material = new gx.MeshBasicMaterial({map: texture, color: 0xCCCCFF});
@@ -107,6 +107,7 @@ class Planet {
 
     update(){
         // damp. (it helps... somehow)
+        /*
         if(Math.abs(this.vx) > 0.01){
             this.vx += (this.vx > 0) ? -0.0001 : 0.0001;
         }
@@ -116,6 +117,7 @@ class Planet {
         if(Math.abs(this.vz) > 0.01){
             this.vz += (this.vz > 0) ? -0.0001 : 0.0001;
         }
+        */
 
         this.x = this.cx + this.vx;
         this.y = this.cy + this.vy;
@@ -133,11 +135,12 @@ class Planet {
 
 class World {
     planets = [];
+    cur = 0;
 
     create(n = 0){
         this.planets = [];
         for(var i = 0; i < n; i++){
-            this.planets.push(new Planet(rand(-40, 40), rand(-40, 40), rand(-40, 40), 20, undefined, 0x8888FF, 1));
+            this.planets.push(new Planet(rand(-40, 40), rand(-40, 40), rand(-40, 40), 10 ** 8, undefined, 1));
         }
     }
 
@@ -150,7 +153,7 @@ class World {
 
     add(item){
         if(!item){
-            this.planets.push(new Planet(rand(-40, 40), rand(-40, 40), rand(-40, 40), 20, undefined, 0x8888FF, 1));
+            this.planets.push(new Planet(rand(-40, 40), rand(-40, 40), rand(-40, 40), 10 ** 8, undefined, 1));
         } else {
             this.planets.push(item);
         }
@@ -182,6 +185,12 @@ class World {
                     scene.remove(ex.shape);
 
                     this.planets.splice(j, 1);
+
+                    if(j == this.cur){
+                        this.cur = i;
+                    } else if(j < this.cur){
+                        this.cur -= 1;
+                    }
 
                     // weighted average to center position
                     const w1 = (p.m / ex.m), w2 = (ex.m / p.m);
@@ -215,9 +224,32 @@ class World {
             this.planets[i].update();
         }
     }
+
+    viewmax(){
+        var mv = -1;
+        var mi = -1;
+
+        for(var i = 0; i < this.planets.length; i++){
+            const pm = this.planets[i].m;
+            if(mv < pm){
+                mi = i;
+                mv = pm;
+            }
+        }
+
+        this.cur = Math.max(mi, 0);
+    }
+
+    viewnext(){
+        this.cur = (this.cur + 1) % this.planets.length;
+    }
+
+    viewpre(){
+        this.cur = this.cur ? this.cur - 1 : this.planets.length;
+    }
 }
 
-var n = 10;
+var n = 50;
 
 const world = new World(n);
 
@@ -236,18 +268,25 @@ document.onkeydown = (event) => {
         case '-':
             n -= 5;
             break;
-       
+        
         case '=':
-            n = 10;
+            n = 50;
             break;
         
         case 'a':
             world.add();
             break;
         
-        case 'v':
-            cam.position.z = -80;
-            cam.position.y = 5;
+        case 'm':
+            world.viewmax();
+            break;
+        
+        case "ArrowRight":
+            world.viewnext();
+            break;
+        
+        case "ArrowLeft":
+            world.viewpre();
             break;
     }
 }
@@ -259,7 +298,11 @@ const controls = new OrbitControls(cam, renderer.domElement);
 setInterval(() => {
     world.update();
 
+    if(world.planets.length){
+        controls.target = world.planets[world.cur].shape.position;
+    }
+
     controls.update();
 
     renderer.render(scene, cam);
-}, 10);
+}, 1);
