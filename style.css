@@ -7,3 +7,10 @@ canvas {
     top: 0;
     left: 0;
 }
+
+.over {
+    position: fixed;
+    top: 3;
+    left: 3;
+    color: white;
+}
