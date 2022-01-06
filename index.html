@@ -2,17 +2,42 @@
 <html lang="en">
 
 <head>
-    <title>Gravity Simulation</title>
+    <title>Gravity | Abi</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/ico" href="integral.ico">
     <script src="https://unpkg.com/mathjs@10.0.1/lib/browser/math.js"></script>
     <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/0ce31c95c7.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
     <canvas id="main"></canvas>
+    <main class="over">
+        <i class="fas fa-cogs" id="info"></i>
+        <div style="display: none;" id="disp">
+            <p>r) reset</p>
+            <p>+) add five to batch size</p>
+            <p>-) remove five from batch size</p>
+            <p>=) make batchsize fifty (default)</p>
+            <p>a) add planet (as if from original batch)</p>
+            <p>m) center largest planet in view</p>
+            <p>right arrow) center next planet</p>
+            <p>left arrow) center previous planet</p>
+        </div>
+    </main>
     <script type="module" src="script.js"></script>
+    <script>
+        const info = document.getElementById("info");
+        const disp = document.getElementById("disp");
+        info.onclick = () => {
+            if(disp.style.display == "none"){
+                disp.style.display = "block";
+            } else {
+                disp.style.display = "none";
+            }
+        }
+    </script>
 </body>
 
 </html>
